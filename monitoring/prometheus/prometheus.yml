@@ -1,0 +1,35 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+rule_files:
+  - "/etc/prometheus/alert.rules.yml"
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: ["alertmanager:9093"]
+
+scrape_configs:
+  - job_name: "aegis-noc-platform"
+    metrics_path: "/api/v1/health"
+    static_configs:
+      - targets: ["aegis-app:3000"]
+
+  - job_name: "node_exporter"
+    static_configs:
+      - targets:
+          - "10.24.10.11:9100"
+          - "10.24.20.15:9100"
+          - "10.24.60.44:9100"
+
+  - job_name: "windows_exporter"
+    static_configs:
+      - targets:
+          - "10.24.40.18:9182"
+          - "10.24.50.31:9182"
+
+  - job_name: "cadvisor"
+    static_configs:
+      - targets:
+          - "10.24.30.22:8080"

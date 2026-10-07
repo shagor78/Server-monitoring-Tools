@@ -1,0 +1,37 @@
+groups:
+  - name: aegis_infrastructure_alerts
+    rules:
+      - alert: HighCpuUtilization
+        expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[2m])) * 100) > 90
+        for: 2m
+        labels:
+          severity: CRITICAL
+          remediation_code: DOCKER_RESTART_CONTAINER
+        annotations:
+          summary: "CPU utilization > 90% on {{ $labels.instance }}"
+
+      - alert: HighMemoryUtilization
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 90
+        for: 2m
+        labels:
+          severity: HIGH
+        annotations:
+          summary: "Memory utilization > 90% on {{ $labels.instance }}"
+
+      - alert: DiskSpaceWarning
+        expr: (1 - (node_filesystem_avail_bytes{fstype!~"tmpfs|overlay"} / node_filesystem_size_bytes)) * 100 > 85
+        for: 5m
+        labels:
+          severity: WARNING
+          remediation_code: LNX_CLEAN_JOURNAL_DISK
+        annotations:
+          summary: "Disk usage > 85% on {{ $labels.instance }}"
+
+      - alert: WindowsServiceDown
+        expr: windows_service_state{state="running",name=~"MSSQLSERVER|W3SVC|Spooler"} == 0
+        for: 1m
+        labels:
+          severity: HIGH
+          remediation_code: WIN_RESTART_W3SVC
+        annotations:
+          summary: "Windows service {{ $labels.name }} stopped on {{ $labels.instance }}"

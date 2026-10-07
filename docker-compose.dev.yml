@@ -1,0 +1,8 @@
+version: "3.9"
+
+services:
+  aegis-app:
+    environment:
+      - NODE_ENV=development
+    ports:
+      - "3000:3000"
